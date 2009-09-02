@@ -3,7 +3,6 @@ require 'time'
 # {:minute => xxx, :station => :a}
 @a = []
 @d = []
-
 # Stationen
 @s = { :a => [], :b => [] }
 
@@ -13,20 +12,18 @@ def calculate
 
 	(24*60).times do |minute|
 		while (!@a.empty? and @a.first[:minute] == minute)
-			puts "ARRIVAL at #{minute} in #{@a.first[:station]}. Trains waiting in station: #{@s[@a.first[:station]].length}"
-			@s[@a.first[:station]].push(minute)
-			@a.delete(@a.first)
+			t = @a.shift
+			@s[t[:station]].push(minute)
 		end
 
 		while (!@d.empty? and @d.first[:minute] == minute)
-			puts "DEPARTURE at #{minute} from #{@d.first[:station]}. Trains waiting in station: #{@s[@d.first[:station]].length}"
-			s = @s[@d.first[:station]]
+			t = @d.shift
+			s = @s[t[:station]]
 			if s.empty?
-				s.push(minute)
-				result[@d.first[:station]] += 1
+				result[t[:station]] += 1
+			else
+				s.pop
 			end
-			s.pop
-			@d.delete(@d.first)
 		end
 	end
 	
@@ -40,13 +37,11 @@ def read_times(f, sd, sa, t)
 	@a << { :minute => (times[1].hour*60 + times[1].min + t), :station => sa }
 end
 
-f = File.open('b-small-practice.in')
+f = File.open('b-large-practice.in')
 
 begin
-	
 	# Case count
 	f.readline.to_i.times do |n|
-	
 		turnaround_time = f.readline.to_i
 		
 		# Anzahl der Fahrten lesen
@@ -60,11 +55,9 @@ begin
 		@a.sort! {|a,b| a[:minute] <=> b[:minute]}
 
 		result = calculate
-		
-		puts "Case ##{n+1}: #{result[:a]} #{result[:b]}"
-	
-	end
 
+		puts "Case ##{n+1}: #{result[:a]} #{result[:b]}"
+	end
 ensure
 	f.close if f
 end
