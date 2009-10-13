@@ -1,29 +1,22 @@
 # Wechsel berechnen
-def calculate(s, q, s_current=nil)
-	result = []
-	count = -1
-	s_current = get_next_s(s) unless s_current
-	
+def calculate(s, q)
+	segment = []
+	result = 0
+
 	q.each_with_index do |query,i|
-		if (query == s_current)
-			s_current = get_next_s(s)
-			if (i > 0)
-				result << calculate(s, q.slice(i..-1), s_current)
-				count += 1
+		if (!segment.find {|x| query == x})
+			if (segment.length == s.length-1)
+				result += 1
+				segment.clear
 			end
+			segment << query
 		end
 	end
 	
-	return count + (result.min || 0)
+	result
 end
-
-def get_next_s(s)
-	s.push(s.shift).first
-end
-
 
 f = File.open('a-small-practice.in')
-count = 0
 
 begin
 
@@ -42,11 +35,7 @@ begin
 		end
 		
 		# Gibt es einen Weg ohne Umschalten?
-		if (q.uniq - s).length != q.uniq.length - s.length
-			result = 0
-		else
-			result = calculate(s, q)
-		end
+		result = calculate(s, q)
 		
 		# Ausgabe:
 		puts "Case ##{case_number+1}: #{result}"
